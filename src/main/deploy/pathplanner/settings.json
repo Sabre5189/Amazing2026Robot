@@ -13,7 +13,7 @@
   "robotMOI": 6.243,
   "robotTrackwidth": 0.546,
   "driveWheelRadius": 0.102,
-  "driveGearing": 8.14,
+  "driveGearing": 46.42,
   "maxDriveSpeed": 12.9,
   "driveMotorType": "vortex",
   "driveCurrentLimit": 40.0,

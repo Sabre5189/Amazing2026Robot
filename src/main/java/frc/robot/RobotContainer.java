@@ -105,7 +105,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // // Set the default auto (do nothing)
-    autoChooser.setDefaultOption("Do Nothing", Commands.none());
+    autoChooser.setDefaultOption("New Auto", Commands.none());
 
     // // Add a simple auto option to have the robot drive forward for 1 second then
     // // stop
