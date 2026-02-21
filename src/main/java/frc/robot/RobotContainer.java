@@ -10,11 +10,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.ShooterCommand;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
+
+import static edu.wpi.first.units.Units.RPM;
 import java.io.File;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -41,7 +43,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
 // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
@@ -96,6 +98,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+ // Set the default command to force the shooter rest.
+    m_ShooterSubsystem.setDefaultCommand(m_ShooterSubsystem.set(0));
+
      DriverStation.silenceJoystickConnectionWarning(true);
 
     // Create the NamedCommands that will be used in PathPlanner
@@ -141,15 +147,23 @@ public class RobotContainer {
     } else {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
+// Schedule `setVelocity` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    m_driverController.cross().whileTrue(m_ShooterSubsystem.setVelocity(RPM.of(60)));
+    m_driverController.circle().whileTrue(m_ShooterSubsystem.setVelocity(RPM.of(300)));
+    // Schedule `set` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    m_driverController.square().whileTrue(m_ShooterSubsystem.set(0.3));
+    m_driverController.triangle().whileTrue(m_ShooterSubsystem.set(-0.3));
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    // new Trigger(m_ShooterSubsystem::exampleCondition)
+    //     .onTrue(new ShooterCommand(m_ShooterSubsystem));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    m_driverController.circle().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // m_driverController.circle().whileTrue(m_ShooterSubsystem.exampleMethodCommand());
   }
 
   /**
