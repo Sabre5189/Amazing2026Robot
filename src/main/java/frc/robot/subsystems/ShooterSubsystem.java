@@ -1,157 +1,120 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.AngularVelocity;
+import org.littletonrobotics.junction.Logger;
+
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.FeedForwardConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import yams.gearing.GearBox;
-import yams.gearing.MechanismGearing;
-import yams.mechanisms.SmartMechanism;
-import yams.mechanisms.config.FlyWheelConfig;
-import yams.mechanisms.velocity.FlyWheel;
-import yams.motorcontrollers.SmartMotorController;
-import yams.motorcontrollers.SmartMotorControllerConfig;
-import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.SparkWrapper;
+import frc.robot.Robot;
 
 public class ShooterSubsystem extends SubsystemBase {
-  // Using sample code from https://yagsl.gitbook.io/yams/documentation/tutorials/shooter-flywheels
 
-  private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-      .withControlMode(ControlMode.CLOSED_LOOP)
-      // Feedback Constants (PID Constants)
-      .withClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-      .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-      // Feedforward Constants
-      .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-      .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-      // Telemetry name and verbosity level
-      .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
-      // Gearing from the motor rotor to final shaft.
-      // In this example GearBox.fromReductionStages(3,4) is the same as
-      // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to
-      // your motor.
-      // You could also use .withGearing(12) which does the same thing.
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
-      // Motor properties to prevent over currenting.
-      .withMotorInverted(false)
-      .withIdleMode(MotorMode.COAST)
-      .withStatorCurrentLimit(Amps.of(40));
+  private final SparkMax shooter = new SparkMax(13, MotorType.kBrushless);
+  private SparkMaxConfig motorConfig;
+  private SparkClosedLoopController closedLoopController;
+  private RelativeEncoder encoder;
 
-       private static final int controllerid = 13;
-  // Vendor motor controller object
-  private SparkMax spark = new SparkMax(controllerid, MotorType.kBrushless);
-
-   // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
-
-  
- private final FlyWheelConfig shooterConfig = new FlyWheelConfig(sparkSmartMotorController)
-  // Diameter of the flywheel.
-  .withDiameter(Inches.of(4))
-  // Mass of the flywheel.
-  .withMass(Pounds.of(1))
-  // Maximum speed of the shooter.
-  .withUpperSoftLimit(RPM.of(1000))
-  // Telemetry name and verbosity for the arm.
-  .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
-
-  // Shooter Mechanism
-  private FlyWheel shooter = new FlyWheel(shooterConfig);
-
-  /**
-   * Gets the current velocity of the shooter.
-   *
-   * @return Shooter velocity.
-   */
-  public AngularVelocity getVelocity() {return shooter.getSpeed();}
-
-  /**
-   * Set the shooter velocity.
-   *
-   * @param speed Speed to set.
-   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
-   */
-  public Command setVelocity(AngularVelocity speed) {return shooter.run(speed);}
-  
-  /**
-   * Set the shooter velocity setpoint.
-   *
-   * @param speed Speed to set
-   */
-  public void setVelocitySetpoint(AngularVelocity speed) {shooter.setMechanismVelocitySetpoint(speed);}
- 
-  /**
-   * Set the dutycycle of the shooter.
-   *
-   * @param dutyCycle DutyCycle to set.
-   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
-   */
-  public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
-
-  /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
+    closedLoopController = shooter.getClosedLoopController();
+    encoder = shooter.getEncoder();
+    motorConfig = new SparkMaxConfig();
+    /*
+     * Configure the encoder. For this specific example, we are using the
+     * integrated encoder of the NEO, and we don't need to configure it. If
+     * needed, we can adjust values like the position or velocity conversion
+     * factors.
+     */
+    motorConfig.encoder
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1);
+
+    /*
+     * Configure the closed loop controller. We want to make sure we set the
+     * feedback sensor as the primary encoder.
+     */
+    motorConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        // Set PID values for position control. We don't need to pass a closed
+        // loop slot, as it will default to slot 0.
+        .p(0.4)
+        .i(0)
+        .d(0)
+        .outputRange(-1, 1)
+        // Set PID values for velocity control in slot 1
+        .p(0.0005, ClosedLoopSlot.kSlot1)
+        .i(0, ClosedLoopSlot.kSlot1)
+        .d(0, ClosedLoopSlot.kSlot1)
+        .outputRange(-1, 1, ClosedLoopSlot.kSlot1).feedForward
+        // kV is now in Volts, so we multiply by the nominal voltage (12V)
+        .kV(12.0 / 5767, ClosedLoopSlot.kSlot1);
+
+    motorConfig.closedLoop.maxMotion
+        // Set MAXMotion parameters for position control. We don't need to pass
+        // a closed loop slot, as it will default to slot 0.
+        .cruiseVelocity(1000)
+        .maxAcceleration(1000)
+        .allowedProfileError(1)
+        // Set MAXMotion parameters for velocity control in slot 1
+        .maxAcceleration(500, ClosedLoopSlot.kSlot1)
+        .cruiseVelocity(1000, ClosedLoopSlot.kSlot1)
+        .allowedProfileError(1, ClosedLoopSlot.kSlot1);
+
+    /*
+     * Apply the configuration to the SPARK MAX.
+     *
+     * kResetSafeParameters is used to get the SPARK MAX to a known state. This
+     * is useful in case the SPARK MAX is replaced.
+     *
+     * kPersistParameters is used to ensure the configuration is not lost when
+     * the SPARK MAX loses power. This is useful for power cycles that may occur
+     * mid-operation.
+     */
+    shooter.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    // Initialize dashboard values
+    SmartDashboard.setDefaultNumber("Target Position", 0);
+    SmartDashboard.setDefaultNumber("Target Velocity", 0);
+    SmartDashboard.setDefaultBoolean("Control Mode", false);
+    SmartDashboard.setDefaultBoolean("Reset Encoder", false);
+
   }
 
- 
+  public Command setVelocity(double rpm) {
+    return run(() -> {
+      closedLoopController.setSetpoint(rpm, ControlType.kMAXMotionVelocityControl,
+          ClosedLoopSlot.kSlot1);
+    });
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  // public Command exampleMethodCommand() {
-  //   // Inline construction of command goes here.
-  //   // Subsystem::RunOnce implicitly requires `this` subsystem.
-  //   return runOnce(
-  //       () -> {
-  //         /* one-time action goes here */
-  //       });
-  // }
+  }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a
-   * digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  // public boolean exampleCondition() {
-  //   // Query some boolean state, such as a digital sensor.
-  //   return false;
-  // }
+  public void stop() {
+    shooter.stopMotor();
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    shooter.updateTelemetry();
-  }
+    SmartDashboard.putNumber("Current Position", encoder.getPosition());
+    Logger.recordOutput("SHOOTER/Current Velocity", encoder.getVelocity());
+   // Logger.recordOutput()
 
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-    shooter.simIterate();
+    if (SmartDashboard.getBoolean("Reset Encoder", false)) {
+      encoder.setPosition(0);
+      SmartDashboard.putBoolean("Reset Encoder", false);
+    }
   }
 }

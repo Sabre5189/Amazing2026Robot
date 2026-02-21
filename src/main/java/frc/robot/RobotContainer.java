@@ -100,7 +100,7 @@ public class RobotContainer {
     configureBindings();
 
  // Set the default command to force the shooter rest.
-    m_ShooterSubsystem.setDefaultCommand(m_ShooterSubsystem.set(0));
+    // m_ShooterSubsystem.setDefaultCommand(m_ShooterSubsystem.setDutyCycle(0));
 
      DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -149,12 +149,9 @@ public class RobotContainer {
     }
 // Schedule `setVelocity` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.cross().whileTrue(m_ShooterSubsystem.setVelocity(RPM.of(60)));
-    m_driverController.circle().whileTrue(m_ShooterSubsystem.setVelocity(RPM.of(300)));
+    m_driverController.circle().whileTrue(m_ShooterSubsystem.setVelocity(800)).whileFalse(m_ShooterSubsystem.setVelocity(0));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.square().whileTrue(m_ShooterSubsystem.set(0.3));
-    m_driverController.triangle().whileTrue(m_ShooterSubsystem.set(-0.3));
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_ShooterSubsystem::exampleCondition)

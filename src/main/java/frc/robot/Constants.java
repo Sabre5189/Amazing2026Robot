@@ -48,4 +48,15 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
+  public static final class ShooterConstants {
+        public static final int kShooterID = 13;
+
+        // PID (TUNE THESE)
+        public static final double kP = 0.0002;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kFF = 0.00018;
+
+        public static final int kCurrentLimit = 40;
+    }
 }
