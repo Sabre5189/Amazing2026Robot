@@ -82,6 +82,36 @@ public class ShooterSubsystem extends SubsystemBase {
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
 
+  /**
+   * Gets the current velocity of the shooter.
+   *
+   * @return Shooter velocity.
+   */
+  public AngularVelocity getVelocity() {return shooter.getSpeed();}
+
+  /**
+   * Set the shooter velocity.
+   *
+   * @param speed Speed to set.
+   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
+   */
+  public Command setVelocity(AngularVelocity speed) {return shooter.run(speed);}
+  
+  /**
+   * Set the shooter velocity setpoint.
+   *
+   * @param speed Speed to set
+   */
+  public void setVelocitySetpoint(AngularVelocity speed) {shooter.setMechanismVelocitySetpoint(speed);}
+ 
+  /**
+   * Set the dutycycle of the shooter.
+   *
+   * @param dutyCycle DutyCycle to set.
+   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
+   */
+  public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
+
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
   }
