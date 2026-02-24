@@ -27,6 +27,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private SparkMaxConfig motorConfig;
   private SparkClosedLoopController closedLoopController;
   private RelativeEncoder encoder;
+  private double targetRPM = 0;
 
   public ShooterSubsystem() {
     closedLoopController = shooter.getClosedLoopController();
@@ -55,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
         .d(0)
         .outputRange(-1, 1)
         // Set PID values for velocity control in slot 1
-        .p(0.0005, ClosedLoopSlot.kSlot1)
+        .p(0.0001, ClosedLoopSlot.kSlot1)
         .i(0, ClosedLoopSlot.kSlot1)
         .d(0, ClosedLoopSlot.kSlot1)
         .outputRange(-1, 1, ClosedLoopSlot.kSlot1).feedForward
@@ -95,7 +96,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Command setVelocity(double rpm) {
     return run(() -> {
-      closedLoopController.setSetpoint(rpm, ControlType.kMAXMotionVelocityControl,
+      targetRPM = rpm;
+      closedLoopController.setSetpoint(rpm, ControlType.kVelocity,
           ClosedLoopSlot.kSlot1);
     });
 
@@ -109,7 +111,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Current Position", encoder.getPosition());
-    Logger.recordOutput("SHOOTER/Current Velocity", encoder.getVelocity());
+    Logger.recordOutput("SHOOTER/Current Velocity", encoder.getVelocity() / 8);
+    Logger.recordOutput("SHOOTER/Target Velocity", targetRPM);
    // Logger.recordOutput()
 
     if (SmartDashboard.getBoolean("Reset Encoder", false)) {
