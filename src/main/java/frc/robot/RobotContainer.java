@@ -11,10 +11,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.IntakeArmCommand;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeArmSubsystem;
 import swervelib.SwerveInputStream;
 
+import static edu.wpi.first.units.Units.Degrees;
 
 import static edu.wpi.first.units.Units.RPM;
 import java.io.File;
@@ -42,6 +46,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+ // The robot's subsystems and commands are defined here...
+  private final IntakeArmSubsystem m_IntakeArmSubsystem = new IntakeArmSubsystem();
+
+
   // The robot's subsystems and commands are defined here...
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
@@ -99,6 +107,9 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
+    // Set the default command to force the arm to go to 0.
+    m_IntakeArmSubsystem.setDefaultCommand(m_IntakeArmSubsystem.setAngle(Degrees.of(0)));
+
  // Set the default command to force the shooter rest.
     // m_ShooterSubsystem.setDefaultCommand(m_ShooterSubsystem.setDutyCycle(0));
 
@@ -149,7 +160,7 @@ public class RobotContainer {
     }
 // Schedule `setVelocity` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.triangle().whileTrue(m_ShooterSubsystem.setVelocity(100)).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.triangle().whileTrue(m_ShooterSubsystem.setVelocity(1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
 
@@ -161,6 +172,15 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
     // m_driverController.circle().whileTrue(m_ShooterSubsystem.exampleMethodCommand());
+
+     // Schedule `setAngle` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    // m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setAngle(Degrees.of(-5)));
+    m_driverController.circle().whileTrue(m_IntakeArmSubsystem.setAngleAndStop(Degrees.of(15)));
+    // Schedule `set` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    // m_driverController.square().whileTrue(m_IntakeArmSubsystem.set(0.3));
+    // m_driverController.triangle().whileTrue(m_IntakeArmSubsystem.set(-0.3));
   }
 
   /**
