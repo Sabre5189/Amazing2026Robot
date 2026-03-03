@@ -108,7 +108,7 @@ public class RobotContainer {
     configureBindings();
 
     // Set the default command to force the arm to go to 0.
-    m_IntakeArmSubsystem.setDefaultCommand(m_IntakeArmSubsystem.setAngle(Degrees.of(0)));
+    
 
  // Set the default command to force the shooter rest.
     // m_ShooterSubsystem.setDefaultCommand(m_ShooterSubsystem.setDutyCycle(0));
@@ -163,24 +163,7 @@ public class RobotContainer {
     m_driverController.triangle().whileTrue(m_ShooterSubsystem.setVelocity(1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
-
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_ShooterSubsystem::exampleCondition)
-    //     .onTrue(new ShooterCommand(m_ShooterSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-    // m_driverController.circle().whileTrue(m_ShooterSubsystem.exampleMethodCommand());
-
-     // Schedule `setAngle` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setAngle(Degrees.of(-5)));
-    m_driverController.circle().whileTrue(m_IntakeArmSubsystem.setAngleAndStop(Degrees.of(15)));
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // m_driverController.square().whileTrue(m_IntakeArmSubsystem.set(0.3));
-    // m_driverController.triangle().whileTrue(m_IntakeArmSubsystem.set(-0.3));
+    m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setAngle(90)).whileFalse(m_IntakeArmSubsystem.setAngle(0));
   }
 
   /**
