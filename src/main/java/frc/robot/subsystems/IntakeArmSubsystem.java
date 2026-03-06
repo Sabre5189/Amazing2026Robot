@@ -87,8 +87,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
    */
   public Command setAngle(double degree) {
     return run(() -> {
-      pidController.setSetpoint(degree, ControlType.kPosition,
-          ClosedLoopSlot.kSlot1);
+      pidController.setSetpoint(degree, ControlType.kPosition);
     });
   }
 

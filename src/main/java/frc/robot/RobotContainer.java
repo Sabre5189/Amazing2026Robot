@@ -13,9 +13,11 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.IntakeArmCommand;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import swervelib.SwerveInputStream;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -49,10 +51,12 @@ public class RobotContainer {
  // The robot's subsystems and commands are defined here...
   private final IntakeArmSubsystem m_IntakeArmSubsystem = new IntakeArmSubsystem();
 
+  private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem();
 
   // The robot's subsystems and commands are defined here...
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 // Establish a Sendable Chooser that will be able to be sent to the
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
@@ -160,10 +164,19 @@ public class RobotContainer {
     }
 // Schedule `setVelocity` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.triangle().whileTrue(m_ShooterSubsystem.setVelocity(1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.R1().whileTrue(Commands.waitSeconds(5).andThen(m_ShooterSubsystem.setVelocity(300))).whileFalse(m_ShooterSubsystem.setVelocity(0));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setAngle(90)).whileFalse(m_IntakeArmSubsystem.setAngle(0));
+    m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setAngle(-480)).whileFalse(m_IntakeArmSubsystem.setAngle(0));
+
+    m_driverController.circle().whileTrue(m_IntakeArmSubsystem.setAngle(480)).whileFalse(m_IntakeArmSubsystem.setAngle(0));
+   
+    m_driverController.R1().whileTrue((m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
+
+    m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(-100))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+
+    m_driverController.square().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
+
   }
 
   /**
