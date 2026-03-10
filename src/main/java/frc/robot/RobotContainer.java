@@ -70,7 +70,7 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> m_driverController.getRawAxis(1) * -1, 
       () -> m_driverController.getRawAxis(0) * -1)
-      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.125)
+      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.25)//was 0.125
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.2)
       .allianceRelativeControl(true);
@@ -164,17 +164,16 @@ public class RobotContainer {
     }
 // Schedule `setVelocity` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.R1().whileTrue(Commands.waitSeconds(5).andThen(m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+  
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    // m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setReference(0));
-    m_driverController.cross().onTrue(m_IntakeArmSubsystem.setReference(0));
+    m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setReference(0));
 
     m_driverController.circle().whileTrue(m_IntakeArmSubsystem.setReference(20));
    
-    m_driverController.R1().whileTrue((m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
+    m_driverController.R1().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
 
-    m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(-100))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
 
     m_driverController.square().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
 

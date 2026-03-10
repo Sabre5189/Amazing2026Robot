@@ -16,7 +16,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.revrobotics.RelativeEncoder;
+
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -31,14 +31,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 
 
 public class IntakeArmSubsystem extends SubsystemBase {
@@ -46,9 +46,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
      
    private final SparkMax intakeArm = new SparkMax(9, MotorType.kBrushless);
     private SparkClosedLoopController pidController;
+    private final DutyCycleEncoder dencoder = new DutyCycleEncoder(4); 
     private SparkMaxConfig armMotorConfig;
-    private AbsoluteEncoder dencoder = intakeArm.getAbsoluteEncoder();
-    double absposition = intakeArm.getAbsoluteEncoder().getPosition();
     private double degree;
     public static double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
   /** Creates a new ExampleSubsystem. */
@@ -68,8 +67,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
     armMotorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         // Set PID values for position control. We don't need to pass a closed
-        // loop slot, as it will default to slot 0.
-        .p(0.08)
+        // loop slot, as it will default to slot 0
+        .p(0.5)
         .i(0)
         .d(0)
         .outputRange(-1, 1)
@@ -85,7 +84,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           armMotorConfig.closedLoop.maxMotion
           .cruiseVelocity(10)
           .maxAcceleration(1000)
-          .allowedProfileError(.8);
+          .allowedProfileError(.01);
 
     intakeArm.configure(armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -101,9 +100,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
    *
    * @return a command
    */
-  public Command setReference(double degree) {
+  public Command setReference(double rpm) {
     return run(() -> {
-      pidController.setSetpoint(degree, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+      pidController.setSetpoint(rpm, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     });
   }
 
@@ -121,8 +120,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
         // This method will be called once per scheduler run during simulation
- SmartDashboard.putNumber("Current Position", dencoder.getPosition());
-    Logger.recordOutput("INTAKEARM/Current Position", dencoder.getPosition());
+ SmartDashboard.putNumber("Current Position", dencoder.get());
+    Logger.recordOutput("INTAKEARM/Current Position", dencoder.get());
     Logger.recordOutput("INTAKEARM/Target Position", degree);
    // Logger.recordOutput()
   }
@@ -130,8 +129,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
- SmartDashboard.putNumber("Current Position", dencoder.getPosition());
-    Logger.recordOutput("INTAKEARM/Current Position", dencoder.getPosition());
+ SmartDashboard.putNumber("Current Position", dencoder.get());
+    Logger.recordOutput("INTAKEARM/Current Position", dencoder.get());
     Logger.recordOutput("INTAKEARM/Target Position", degree);
    // Logger.recordOutput()
   }
