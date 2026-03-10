@@ -6,132 +6,104 @@ package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
-
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
-import com.revrobotics.spark.config.EncoderConfig;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
+import frc.robot.Constants.IntakeConstants;
 
 public class IntakeArmSubsystem extends SubsystemBase {
-// https://github.com/REVrobotics/REVLib-Examples/blob/main/Java/SPARK/MAXMotion/src/main/java/frc/robot/Robot.java
-     
-   private final SparkMax intakeArm = new SparkMax(9, MotorType.kBrushless);
-    private SparkClosedLoopController pidController;
-    private final DutyCycleEncoder dencoder = new DutyCycleEncoder(4); 
-    private SparkMaxConfig armMotorConfig;
-    private double degree;
-    public static double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-  /** Creates a new ExampleSubsystem. */
-  public IntakeArmSubsystem() {
 
-    pidController = intakeArm.getClosedLoopController();
-    armMotorConfig = new SparkMaxConfig();
-      
-    armMotorConfig.absoluteEncoder
-        .positionConversionFactor(1)
-        .velocityConversionFactor(1);
+    private final SparkMax motor;
+    private final DutyCycleEncoder absoluteEncoder;
 
-            /*
-     * Configure the closed loop controller. We want to make sure we set the
-     * feedback sensor as the primary encoder.
-     */
-    armMotorConfig.closedLoop
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        // Set PID values for position control. We don't need to pass a closed
-        // loop slot, as it will default to slot 0
-        .p(0.5)
-        .i(0)
-        .d(0)
-        .outputRange(-1, 1)
-        
-        // Set PID values for velocity control in slot 1
-        .p(0.0001, ClosedLoopSlot.kSlot1)
-        .i(0, ClosedLoopSlot.kSlot1)
-        .d(0, ClosedLoopSlot.kSlot1)
-        .outputRange(-.5, .5, ClosedLoopSlot.kSlot1).feedForward
-        // kV is now in Volts, so we multiply by the nominal voltage (12V)
-        .kV(12.0 / 5767, ClosedLoopSlot.kSlot1);
+    private final PIDController pid;
 
-          armMotorConfig.closedLoop.maxMotion
-          .cruiseVelocity(10)
-          .maxAcceleration(1000)
-          .allowedProfileError(.01);
+    public IntakeArmSubsystem() {
 
-    intakeArm.configure(armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        // Motor
+        motor = new SparkMax(IntakeConstants.kMotorID, MotorType.kBrushless);
 
-        // Initialize dashboard values
-    SmartDashboard.setDefaultNumber("Target Position", 0);
-    SmartDashboard.setDefaultNumber("Target Velocity", 0);
-    SmartDashboard.setDefaultBoolean("Control Mode", false);
-    SmartDashboard.setDefaultBoolean("Reset Encoder", false);
-  }
+        SparkMaxConfig config = new SparkMaxConfig();
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command setReference(double rpm) {
-    return run(() -> {
-      pidController.setSetpoint(rpm, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-    });
-  }
+        motor.configure(config,
+               ResetMode.kResetSafeParameters,
+               PersistMode.kPersistParameters);
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
+        // Absolute encoder on DIO
+        absoluteEncoder = new DutyCycleEncoder(IntakeConstants.kEncoderDIO);
+
+        // WPILib PID (since encoder is on RIO)
+        pid = new PIDController(
+                IntakeConstants.kP,
+                IntakeConstants.kI,
+                IntakeConstants.kD
+        );
+
+        // Enable continuous input (important for absolute encoders)
+        pid.enableContinuousInput(0.0, 1.0);
+    }
+
+    // Get absolute position (0.0 - 1.0 rotations)
+    public double getAbsolutePosition() {
+        double position = absoluteEncoder.get();
+        position -= IntakeConstants.kEncoderOffset;
+
+        // Wrap between 0 and 1
+        if (position < 0) position += 1.0;
+        if (position > 1) position -= 1.0;
+
+        return position;
+    }
+
+    // Convert to degrees (easier for students)
+    public double getDegrees() {
+        return getAbsolutePosition() * 360.0;
+    }
+
+    // Open loop
+    public void run(double speed) {
+        motor.set(speed);
+    }
+
+    public void stop() {
+        motor.stopMotor();
+    }
+
+    // Closed-loop position control (degrees)
+    public void moveToAngle(double targetDegrees) {
+
+        double targetRotations = targetDegrees / 360.0;
+
+        double output = pid.calculate(getAbsolutePosition(), targetRotations);
+
+        motor.set(output);
+    }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
         // This method will be called once per scheduler run during simulation
- SmartDashboard.putNumber("Current Position", dencoder.get());
-    Logger.recordOutput("INTAKEARM/Current Position", dencoder.get());
-    Logger.recordOutput("INTAKEARM/Target Position", degree);
+ SmartDashboard.putNumber("Current Position", absoluteEncoder.get());
+    Logger.recordOutput("INTAKEARM/Current Position", absoluteEncoder.get());
+    Logger.recordOutput("INTAKEARM/Target Position", getDegrees());
    // Logger.recordOutput()
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
- SmartDashboard.putNumber("Current Position", dencoder.get());
-    Logger.recordOutput("INTAKEARM/Current Position", dencoder.get());
-    Logger.recordOutput("INTAKEARM/Target Position", degree);
+ SmartDashboard.putNumber("Current Position", absoluteEncoder.get());
+    Logger.recordOutput("INTAKEARM/Current Position", absoluteEncoder.get());
    // Logger.recordOutput()
   }
 }

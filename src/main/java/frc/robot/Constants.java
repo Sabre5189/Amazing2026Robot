@@ -59,4 +59,22 @@ public final class Constants
 
         public static final int kCurrentLimit = 40;
     }
+
+    public static final class IntakeConstants {
+          public static final int kMotorID = 5;
+
+          // Absolute encoder DIO port
+          public static final int kEncoderDIO = 0;
+
+          public static final double kIntakeSpeed = 0.8;
+
+          //Offset for zeroing (measure on robot)
+          public static final double kEncoderOffset = 0.0;
+
+          // PID (TUNE THESE)
+          public static final double kP = 0.01;
+          public static final double kI = 0.0;
+          public static final double kD = 0.1;
+  
+      }
 }

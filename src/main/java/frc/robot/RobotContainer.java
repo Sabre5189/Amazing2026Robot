@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -50,6 +51,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
  // The robot's subsystems and commands are defined here...
   private final IntakeArmSubsystem m_IntakeArmSubsystem = new IntakeArmSubsystem();
+
+   private final IntakeArmSubsystem intake = new IntakeArmSubsystem();
+    private final CommandXboxController driver =
+            new CommandXboxController(0);
+
 
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem();
 
@@ -162,20 +168,25 @@ public class RobotContainer {
     } else {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
-// Schedule `setVelocity` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-  
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.cross().whileTrue(m_IntakeArmSubsystem.setReference(0));
 
-    m_driverController.circle().whileTrue(m_IntakeArmSubsystem.setReference(20));
-   
+        // m_driverController.b().whileTrue(
+        //     new RunCommand(() -> intake.run(0.8), intake)
+        // );
+
+        // m_driverController.a().whileTrue(
+        //     new RunCommand(() -> intake.run(-0.8), intake)
+        // );
+
+        // Move intake to 90 degrees
+        m_driverController.cross().whileTrue(
+            new RunCommand(() -> intake.moveToAngle(90), intake)
+        );
+
     m_driverController.R1().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
 
     m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
 
-    m_driverController.square().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
+    //m_driverController.square().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
 
   }
 
