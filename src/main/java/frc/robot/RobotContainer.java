@@ -50,9 +50,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
  // The robot's subsystems and commands are defined here...
-  private final IntakeArmSubsystem m_IntakeArmSubsystem = new IntakeArmSubsystem();
 
-   private final IntakeArmSubsystem intake = new IntakeArmSubsystem();
+   private final IntakeArmSubsystem intaked = new IntakeArmSubsystem();
     private final CommandXboxController driver =
             new CommandXboxController(0);
 
@@ -179,7 +178,7 @@ public class RobotContainer {
 
         // Move intake to 90 degrees
         m_driverController.cross().whileTrue(
-            new RunCommand(() -> intake.moveToAngle(90), intake)
+            new RunCommand(() -> intaked.moveToAngle(40), intaked)
         );
 
     m_driverController.R1().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));

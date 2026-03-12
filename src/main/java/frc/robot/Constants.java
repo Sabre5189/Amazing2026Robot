@@ -61,10 +61,10 @@ public final class Constants
     }
 
     public static final class IntakeConstants {
-          public static final int kMotorID = 5;
+          public static final int kMotorID = 19;
 
           // Absolute encoder DIO port
-          public static final int kEncoderDIO = 0;
+          public static final int kEncoderDIO = 4;
 
           public static final double kIntakeSpeed = 0.8;
 

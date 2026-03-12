@@ -24,7 +24,7 @@ import frc.robot.Robot;
 public class ShooterSubsystem extends SubsystemBase {
 
   private final SparkMax shooter = new SparkMax(13, MotorType.kBrushless);
-  private SparkMaxConfig motorConfig;
+  private SparkMaxConfig jmotorConfig;
   private SparkClosedLoopController closedLoopController;
   private RelativeEncoder encoder;
   private double targetRPM = 0;
@@ -32,14 +32,14 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     closedLoopController = shooter.getClosedLoopController();
     encoder = shooter.getEncoder();
-    motorConfig = new SparkMaxConfig();
+    jmotorConfig = new SparkMaxConfig();
     /*
      * Configure the encoder. For this specific example, we are using the
      * integrated encoder of the NEO, and we don't need to configure it. If
      * needed, we can adjust values like the position or velocity conversion
      * factors.
      */
-    motorConfig.encoder
+    jmotorConfig.encoder
         .positionConversionFactor(1)
         .velocityConversionFactor(1);
 
@@ -47,7 +47,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Configure the closed loop controller. We want to make sure we set the
      * feedback sensor as the primary encoder.
      */
-    motorConfig.closedLoop
+    jmotorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         // Set PID values for position control. We don't need to pass a closed
         // loop slot, as it will default to slot 0.
@@ -63,7 +63,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // kV is now in Volts, so we multiply by the nominal voltage (12V)
         .kV(12.0 / 5767, ClosedLoopSlot.kSlot1);
 
-    motorConfig.closedLoop.maxMotion
+    jmotorConfig.closedLoop.maxMotion
         // Set MAXMotion parameters for position control. We don't need to pass
         // a closed loop slot, as it will default to slot 0.
         .cruiseVelocity(1000)
@@ -84,7 +84,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * the SPARK MAX loses power. This is useful for power cycles that may occur
      * mid-operation.
      */
-    shooter.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    shooter.configure(jmotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     // Initialize dashboard values
     SmartDashboard.setDefaultNumber("Target Position", 0);

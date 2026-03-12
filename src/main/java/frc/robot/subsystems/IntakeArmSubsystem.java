@@ -25,17 +25,16 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
     private final SparkMax motor;
     private final DutyCycleEncoder absoluteEncoder;
-
     private final PIDController pid;
-
+ 
     public IntakeArmSubsystem() {
 
         // Motor
         motor = new SparkMax(IntakeConstants.kMotorID, MotorType.kBrushless);
 
-        SparkMaxConfig config = new SparkMaxConfig();
+        SparkMaxConfig configs = new SparkMaxConfig();
 
-        motor.configure(config,
+        motor.configure(configs,
                ResetMode.kResetSafeParameters,
                PersistMode.kPersistParameters);
 
@@ -55,7 +54,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
     // Get absolute position (0.0 - 1.0 rotations)
     public double getAbsolutePosition() {
-        double position = absoluteEncoder.get();
+        double position = absoluteEncoder.get() * 360;
         position -= IntakeConstants.kEncoderOffset;
 
         // Wrap between 0 and 1
@@ -93,9 +92,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
         // This method will be called once per scheduler run during simulation
- SmartDashboard.putNumber("Current Position", absoluteEncoder.get());
-    Logger.recordOutput("INTAKEARM/Current Position", absoluteEncoder.get());
-    Logger.recordOutput("INTAKEARM/Target Position", getDegrees());
+ SmartDashboard.putNumber("Current Position", getAbsolutePosition());
+    Logger.recordOutput("INTAKEARM/Current Position", getAbsolutePosition());
+    Logger.recordOutput("INTAKEARM/Target Position", 90);
    // Logger.recordOutput()
   }
 
