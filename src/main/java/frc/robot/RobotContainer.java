@@ -177,10 +177,13 @@ public class RobotContainer {
         // );
 
         // Move intake to 90 degrees
-        m_driverController.cross().whileTrue(
-            new RunCommand(() -> intaked.moveToAngle(40), intaked)
-        );
-
+     m_driverController.cross().onTrue(
+    Commands.runEnd(
+        () -> intaked.moveToAngle(60),
+        () -> intaked.stop(),
+        intaked
+    )
+);
     m_driverController.R1().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
 
     m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));

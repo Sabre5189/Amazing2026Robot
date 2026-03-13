@@ -73,7 +73,6 @@ public class ShooterSubsystem extends SubsystemBase {
         .maxAcceleration(500, ClosedLoopSlot.kSlot1)
         .cruiseVelocity(1000, ClosedLoopSlot.kSlot1)
         .allowedProfileError(1, ClosedLoopSlot.kSlot1);
-
     /*
      * Apply the configuration to the SPARK MAX.
      *
