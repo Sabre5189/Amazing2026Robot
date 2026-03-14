@@ -16,6 +16,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.math.controller.PIDController;
@@ -37,6 +38,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
         motor = new SparkMax(IntakeConstants.kMotorID, MotorType.kBrushless);
 
         SparkMaxConfig configs = new SparkMaxConfig();       
+        configs.idleMode(IdleMode.kCoast);
         motor.configure(configs,
                ResetMode.kResetSafeParameters,
                PersistMode.kPersistParameters);
@@ -58,7 +60,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
     // Get absolute position (0.0 - 1.0 rotations)
     public double getAbsolutePosition() {
-        double position =-absoluteEncoder.get();
+        double position = absoluteEncoder.get();
 
         position -= IntakeConstants.kEncoderOffset;
 
@@ -98,6 +100,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
         // This method will be called once per scheduler run during simulation
  SmartDashboard.putNumber("Current Position", getDegrees());
+ SmartDashboard.putNumber("Raw Encoder", absoluteEncoder.get());
     Logger.recordOutput("INTAKEARM/Current Position", getDegrees());
     Logger.recordOutput("INTAKEARM/Target Position", 90);
    // Logger.recordOutput()

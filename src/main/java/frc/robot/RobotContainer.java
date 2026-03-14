@@ -70,7 +70,7 @@ public class RobotContainer {
       "swerve"));
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandPS4Controller m_driverController = new CommandPS4Controller(0);
+  private final CommandXboxController m_driverController = new CommandXboxController(0);
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> m_driverController.getRawAxis(1) * -1, 
@@ -177,18 +177,26 @@ public class RobotContainer {
         // );
 
         // Move intake to 90 degrees
-     m_driverController.cross().onTrue(
+     m_driverController.a().onTrue(
     Commands.runEnd(
-        () -> intaked.moveToAngle(60),
+        () -> intaked.moveToAngle(254),
         () -> intaked.stop(),
         intaked
     )
 );
-    m_driverController.R1().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
 
-    m_driverController.triangle().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+ m_driverController.b().onTrue(
+    Commands.runEnd(
+        () -> intaked.moveToAngle(-254),
+        () -> intaked.stop(),
+        intaked
+    )
+ );
+    m_driverController.rightBumper().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
 
-    //m_driverController.square().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
+    m_driverController.rightBumper().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+
+    m_driverController.x().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
 
   }
 
