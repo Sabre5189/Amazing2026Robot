@@ -48,6 +48,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
         // Motor
         motor = new SparkMax(IntakeConstants.kMotorID, MotorType.kBrushless);
         followMotor = new SparkMax(IntakeConstants.kfollowMotorID, MotorType.kBrushless);
+        
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         SparkMaxConfig configs = new SparkMaxConfig();       
@@ -117,8 +118,11 @@ public class IntakeArmSubsystem extends SubsystemBase {
     }
 
     // Open loop
-    public void run(double speed) {
+    public Command run(double speed) {
+      return  run(() -> {
         motor.set(speed);
+    });
+
     }
 
     public void stop() {
@@ -144,6 +148,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
         // This method will be called once per scheduler run during simulation
  SmartDashboard.putNumber("Current Position", getDegrees());
  SmartDashboard.putNumber("Raw Encoder", absoluteEncoder.get());
+
     Logger.recordOutput("INTAKEARM/Current Position", getDegrees());
     Logger.recordOutput("INTAKEARM/Target Position", 90);
    // Logger.recordOutput()
