@@ -12,6 +12,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.FooAutoCmd;
 import frc.robot.commands.ShooterCommand;
+import frc.robot.commands.indexerAndShoot;
+import frc.robot.commands.stopIndexerAndShooter;
 import frc.robot.commands.IntakeArmCommand;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -76,14 +78,14 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> m_driverController.getRawAxis(1) * -1, 
       () -> m_driverController.getRawAxis(0) * -1)
-      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.25)//was 0.125
+      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.4)//was 0.125
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.2)
       .allianceRelativeControl(true);
 
 
   SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-      () -> -m_driverController.getRawAxis(1) ,
+      () -> -m_driverController.getRawAxis(1),
       () -> -m_driverController.getRawAxis(0))
       .withControllerRotationAxis(() -> Math.pow(-m_driverController.getRawAxis(
           4),3)* 0.125)
@@ -132,7 +134,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // // Set the default auto (do nothing)
-    autoChooser.setDefaultOption("New Auto", Commands.none());
+    autoChooser.setDefaultOption("Do Nothing", Commands.none());
     autoChooser.addOption("fooAutomomous Command", new FooAutoCmd());
     
         // // Add a simple auto option to have the robot drive forward for 1 second then
@@ -196,12 +198,17 @@ public class RobotContainer {
  );
  
 
-    m_driverController.rightBumper().whileTrue(Commands.waitSeconds(2).andThen(m_IndexerSubsystem.setSpeed(-100))).whileFalse(m_IndexerSubsystem.setSpeed(0));
+    m_driverController.rightBumper().whileTrue(new indexerAndShoot(m_ShooterSubsystem, m_IndexerSubsystem)).whileFalse(new stopIndexerAndShooter(m_ShooterSubsystem, m_IndexerSubsystem));
 
-    m_driverController.rightBumper().whileTrue((m_ShooterSubsystem.setVelocity(1000))).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.start().whileTrue(m_IndexerSubsystem.run()).whileFalse(m_IndexerSubsystem.stop());
 
-    m_driverController.x().whileTrue((m_IntakeSubsystem.setVelocity(-100))).whileFalse(m_IntakeSubsystem.setVelocity(0));
+    m_driverController.back().whileTrue(m_IndexerSubsystem.runInverse()).whileFalse(m_IndexerSubsystem.stop());
 
+    m_driverController.leftBumper().whileTrue(m_ShooterSubsystem.setVelocity(-1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.leftBumper().whileTrue(m_IndexerSubsystem.runInverse()).whileFalse(m_IndexerSubsystem.stop());
+    
+    m_driverController.x().toggleOnTrue(m_IntakeSubsystem.setVelocity(-200));
+    m_driverController.y().toggleOnTrue(m_IntakeSubsystem.setVelocity(0));
   }
 
   /**

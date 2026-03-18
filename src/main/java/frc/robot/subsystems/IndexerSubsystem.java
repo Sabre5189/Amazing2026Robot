@@ -94,18 +94,27 @@ public class IndexerSubsystem extends SubsystemBase {
 
   }
 
-  public Command setSpeed(double rpm) {
+  public Command run(){
     return run(() -> {
-      targetRPM = rpm;
-      closedLoopController.setSetpoint(rpm, ControlType.kVelocity,
-          ClosedLoopSlot.kSlot1);
+          indexer.set(-.2);
+      // targetRPM = rpm;
+      // closedLoopController.setSetpoint(rpm, ControlType.kVelocity,
+      //     ClosedLoopSlot.kSlot1);
     });
 
   }
 
-  public void stop() {
-    indexer.stopMotor();
+  public Command runInverse(){
+    return run(() -> {
+      indexer.set(.2);
+    });
   }
+
+  public Command stop(){
+  return run(() -> {
+    indexer.stopMotor();
+  });
+}
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
