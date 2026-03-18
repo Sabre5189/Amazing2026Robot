@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.FooAutoCmd;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.IntakeArmCommand;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -132,20 +133,21 @@ public class RobotContainer {
 
     // // Set the default auto (do nothing)
     autoChooser.setDefaultOption("New Auto", Commands.none());
-
-    // // Add a simple auto option to have the robot drive forward for 1 second then
-    // // stop
-    // autoChooser.addOption("Drive Forward",
-    // drivebase.driveForward().withTimeout(1));
-    // autoChooser.addOption("Drive Forward",
-    // drivebase.driveForward().withTimeout(1));
-
-    // // Put the autoChooser on the SmartDashboard
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-    // m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.setAngle(Degrees.of(0)));
-  }
-
-  /**
+    autoChooser.addOption("fooAutomomous Command", new FooAutoCmd());
+    
+        // // Add a simple auto option to have the robot drive forward for 1 second then
+        // // stop
+        // autoChooser.addOption("Drive Forward",
+        // drivebase.driveForward().withTimeout(1));
+        // autoChooser.addOption("Drive Forward",
+        // drivebase.driveForward().withTimeout(1));
+    
+        // // Put the autoChooser on the SmartDashboard
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.setAngle(Degrees.of(0)));
+      }
+    
+   /**
    * Use this method to define your trigger->command mappings. Triggers can be
    * created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with

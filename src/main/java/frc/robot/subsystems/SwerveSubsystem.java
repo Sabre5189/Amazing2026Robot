@@ -55,7 +55,19 @@ public class SwerveSubsystem extends SubsystemBase
    * @param directory Directory of swerve drive config files.
    */
    public SwerveSubsystem(File directory)
-  { 
+  {
+
+    AutoBuilder.configure(
+        this::getPose,
+        this::resetOdometry,
+        this::getRobotVelocity,
+        (speeds, ff) -> swerveDrive.setChassisSpeeds(speeds),
+        RobotConfig.fromGUISettings(),
+
+        this::shouldFlipPath,
+        this
+    );
+
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
