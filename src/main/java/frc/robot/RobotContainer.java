@@ -77,9 +77,9 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> m_driverController.getRawAxis(1) * -1, 
       () -> m_driverController.getRawAxis(0) * -1)
-      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.4)//was 0.125
+      .withControllerRotationAxis(()-> Math.pow(-m_driverController.getRawAxis(4),3)* 0.6)//was 0.125
       .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.2)
+      .scaleTranslation(0.4) // was 0.2
       .allianceRelativeControl(true);
 
 
@@ -205,7 +205,7 @@ public class RobotContainer {
     m_driverController.leftBumper().whileTrue(m_ShooterSubsystem.setVelocity(-1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
     m_driverController.leftBumper().whileTrue(m_IndexerSubsystem.runInverse()).whileFalse(m_IndexerSubsystem.stop());
     
-    m_driverController.x().toggleOnTrue(m_IntakeSubsystem.setVelocity(-200));
+    m_driverController.x().toggleOnTrue(m_IntakeSubsystem.setVelocity(-1000));
     m_driverController.y().toggleOnTrue(m_IntakeSubsystem.setVelocity(0));
   }
 

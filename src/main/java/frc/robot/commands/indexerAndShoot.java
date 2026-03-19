@@ -21,7 +21,7 @@ public class indexerAndShoot extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      shooter.setVelocity(1000)
+      shooter.setVelocity(10000)
       .alongWith(new WaitCommand(2).andThen(indexer.run()))
     
     );
