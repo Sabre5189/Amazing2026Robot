@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -93,13 +94,31 @@ public class ShooterSubsystem extends SubsystemBase {
 
   }
 
+  public Command incrementVelocity(double incrementAmount){
+    double currentRpm = closedLoopController.getSetpoint();
+    
+    return setVelocity(currentRpm + incrementAmount);
+  }
+
   public Command setVelocity(double rpm) {
+    // ------------------- NOTE -----------------------
+    // with the addition of incrementVelocity,
+    // we will need to add max & min allowable
+    // values for velocity
+    // ------------------- NOTE -----------------------
+
     return run(() -> {
-      targetRPM = rpm;
-      closedLoopController.setSetpoint(rpm, ControlType.kVelocity,
+      double targetVelocity = rpm;
+
+      if (rpm > ShooterConstants.maxVelocity) {
+        targetVelocity = ShooterConstants.maxVelocity;
+      } else if (rpm < ShooterConstants.minVelocity) {
+        targetVelocity = ShooterConstants.minVelocity;
+      }
+
+      closedLoopController.setSetpoint(targetVelocity, ControlType.kVelocity,
           ClosedLoopSlot.kSlot1);
     });
-
   }
 
   public void stop() {
