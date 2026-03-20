@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.indexerAndShoot;
@@ -163,52 +164,66 @@ public class RobotContainer {
    */
   private void configureBindings() {
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-   Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+
     if (RobotBase.isSimulation()) {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
     } else {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-        // m_driverController.b().whileTrue(
-        //     new RunCommand(() -> intake.run(0.8), intake)
-        // );
+    // m_driverController.b().whileTrue(
+    // new RunCommand(() -> intake.run(0.8), intake)
+    // );
 
-        // m_driverController.a().whileTrue(
-        //     new RunCommand(() -> intake.run(-0.8), intake)
-        // );
+    // m_driverController.a().whileTrue(
+    // new RunCommand(() -> intake.run(-0.8), intake)
+    // );
 
-        // Move intake to 90 degrees
-     m_driverController.a().onTrue(
-    Commands.runEnd(
-        () -> intaked.moveToAngle(123),
-        () -> intaked.stop(),
-        intaked
-    )
-);
+    // Move intake to 90 degrees
+    m_driverController.a().onTrue(
+        Commands.runEnd(
+            () -> intaked.moveToAngle(123),
+            () -> intaked.stop(),
+            intaked));
 
- m_driverController.b().onTrue(
-    Commands.runEnd(
-        () -> intaked.moveToAngle(297),
-        () -> intaked.stop(),
-        intaked
-    )
- );
- 
+    m_driverController.b().onTrue(
+        Commands.runEnd(
+            () -> intaked.moveToAngle(297),
+            () -> intaked.stop(),
+            intaked));
 
-    m_driverController.rightBumper().whileTrue(new indexerAndShoot(m_ShooterSubsystem, m_IndexerSubsystem)).whileFalse(new stopIndexerAndShooter(m_ShooterSubsystem, m_IndexerSubsystem));
+    m_driverController.rightBumper().whileTrue(new indexerAndShoot(m_ShooterSubsystem, m_IndexerSubsystem))
+        .whileFalse(new stopIndexerAndShooter(m_ShooterSubsystem, m_IndexerSubsystem));
 
     m_driverController.start().whileTrue(m_IndexerSubsystem.run()).whileFalse(m_IndexerSubsystem.stop());
 
     m_driverController.back().whileTrue(m_IndexerSubsystem.runInverse()).whileFalse(m_IndexerSubsystem.stop());
 
-    m_driverController.leftBumper().whileTrue(m_ShooterSubsystem.setVelocity(-1000)).whileFalse(m_ShooterSubsystem.setVelocity(0));
+    m_driverController.leftBumper().whileTrue(m_ShooterSubsystem.setVelocity(-1000))
+        .whileFalse(m_ShooterSubsystem.setVelocity(0));
     m_driverController.leftBumper().whileTrue(m_IndexerSubsystem.runInverse()).whileFalse(m_IndexerSubsystem.stop());
-    
+
     m_driverController.x().toggleOnTrue(m_IntakeSubsystem.setVelocity(-1000));
     m_driverController.y().toggleOnTrue(m_IntakeSubsystem.setVelocity(0));
-  }
 
+    m_driverController.povUp()
+        .debounce(ShooterConstants.kShooterIncrementPeriod) 
+        // this will prolly need tuning to control how quickly the incrments happen
+        // *I think* this means that the button will have to be held down at least
+        // .5 seconds (or whatever the constant value is) before it fires the command again
+        .onTrue(incrementShooterVelocity(ShooterConstants.kShooterUp));
+
+    m_driverController.povDown()
+        .debounce(ShooterConstants.kShooterIncrementPeriod) // (see debounce note above on povUp())
+        .onTrue(incrementShooterVelocity(ShooterConstants.kShooterDown));
+
+  }
+ 
+  private Command incrementShooterVelocity(double shooterVelocityIncrement) {
+    return m_ShooterSubsystem.incrementVelocity(shooterVelocityIncrement);
+  }
+     
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
