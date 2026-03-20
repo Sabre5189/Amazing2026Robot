@@ -116,6 +116,12 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    //configureDefaultCommands();
+
+    registerNamedCommands();
+
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -148,6 +154,14 @@ public class RobotContainer {
     // m_exampleSubsystem.setDefaultCommand(m_exampleSubsystem.setAngle(Degrees.of(0)));
   }
 
+   private void registerNamedCommands() {
+   NamedCommands.registerCommand("shooter", new indexerAndShoot(m_ShooterSubsystem, m_IndexerSubsystem));
+  
+  NamedCommands.registerCommand("intake", m_IntakeSubsystem.setVelocity(-1000));
+
+  NamedCommands.registerCommand("intakeStop", m_IntakeSubsystem.setVelocity(0));
+  
+  }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be
    * created via the
@@ -207,16 +221,16 @@ public class RobotContainer {
     m_driverController.x().toggleOnTrue(m_IntakeSubsystem.setVelocity(-1000));
     m_driverController.y().toggleOnTrue(m_IntakeSubsystem.setVelocity(0));
 
-    m_driverController.povUp()
-        .debounce(ShooterConstants.kShooterIncrementPeriod) 
-        // this will prolly need tuning to control how quickly the incrments happen
-        // *I think* this means that the button will have to be held down at least
-        // .5 seconds (or whatever the constant value is) before it fires the command again
-        .onTrue(incrementShooterVelocity(ShooterConstants.kShooterUp));
+    // m_driverController.povUp()
+    //     .debounce(ShooterConstants.kShooterIncrementPeriod) 
+    //     // this will prolly need tuning to control how quickly the incrments happen
+    //     // *I think* this means that the button will have to be held down at least
+    //     // .5 seconds (or whatever the constant value is) before it fires the command again
+    //     .onTrue(incrementShooterVelocity(ShooterConstants.kShooterUp));
 
-    m_driverController.povDown()
-        .debounce(ShooterConstants.kShooterIncrementPeriod) // (see debounce note above on povUp())
-        .onTrue(incrementShooterVelocity(ShooterConstants.kShooterDown));
+    // m_driverController.povDown()
+    //     .debounce(ShooterConstants.kShooterIncrementPeriod) // (see debounce note above on povUp())
+    //     .onTrue(incrementShooterVelocity(ShooterConstants.kShooterDown));
 
   }
  
